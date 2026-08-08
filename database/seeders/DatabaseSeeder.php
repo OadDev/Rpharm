@@ -13,10 +13,12 @@ use App\Models\Product;
 use App\Models\Setting;
 use App\Models\Stat;
 use App\Models\Testimonial;
+use App\Models\User;
 use App\Models\UspItem;
 use App\Models\ValueProp;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
@@ -25,6 +27,7 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        $this->seedAdminUser();
         $this->seedSettings();
         $this->seedUspItems();
         $categories = $this->seedCategories();
@@ -38,6 +41,17 @@ class DatabaseSeeder extends Seeder
         $this->seedCultureItems();
         $this->seedOffices();
         $this->seedJobOpenings();
+    }
+
+    private function seedAdminUser(): void
+    {
+        User::updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@rjspharma.in')],
+            [
+                'name' => 'RJS Pharma Admin',
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'RjsAdmin@2026')),
+            ]
+        );
     }
 
     private function seedSettings(): void
