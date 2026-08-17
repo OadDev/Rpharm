@@ -18,18 +18,31 @@ use Illuminate\Http\Request;
 | This runs before the framework boots (and before anything, like the
 | encrypter, needs APP_KEY), so the setup wizard has a working .env to
 | write into on the very first request.
+|
+| Also repairs a .env that exists but has a blank APP_KEY: a deploy can
+| get as far as `cp .env.example .env` (plain shell, always works) and
+| then fail before the key ever gets generated, leaving a file that
+| exists but doesn't satisfy the framework.
 */
 $envPath = dirname(__DIR__).'/.env';
 $envExamplePath = dirname(__DIR__).'/.env.example';
 
 if (! file_exists($envPath) && file_exists($envExamplePath)) {
     copy($envExamplePath, $envPath);
+}
 
-    file_put_contents($envPath, preg_replace(
-        '/^APP_KEY=.*$/m',
-        'APP_KEY=base64:'.base64_encode(random_bytes(32)),
-        file_get_contents($envPath)
-    ));
+if (file_exists($envPath)) {
+    $envContent = file_get_contents($envPath);
+
+    if (! preg_match('/^APP_KEY=base64:.+$/m', $envContent)) {
+        $newKeyLine = 'APP_KEY=base64:'.base64_encode(random_bytes(32));
+
+        $envContent = preg_match('/^APP_KEY=.*$/m', $envContent)
+            ? preg_replace('/^APP_KEY=.*$/m', $newKeyLine, $envContent)
+            : rtrim($envContent)."\n".$newKeyLine."\n";
+
+        file_put_contents($envPath, $envContent);
+    }
 }
 
 return Application::configure(basePath: dirname(__DIR__))
