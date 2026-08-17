@@ -26,36 +26,36 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress
 
-      - name: Deploy over SSH (rsync)
-        uses: easingthemes/ssh-deploy@v5
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
-          TARGET: ${{ secrets.DEPLOY_PATH }}
-          ARGS: '-rlgoDzvc -i'
-          EXCLUDE: |
-            /.git/
-            /.github/
-            /node_modules/
-            /tests/
-            /.env
-            /storage/app/installed.flag
-            /storage/app/private/
-            /storage/app/public/
-            /database/database.sqlite
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Bootstrap .env on first deploy
+      - name: Deploy over SSH (rsync)
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" rsync -az \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            --exclude='/.git/' \
+            --exclude='/.github/' \
+            --exclude='/node_modules/' \
+            --exclude='/tests/' \
+            --exclude='/.env' \
+            --exclude='/storage/app/installed.flag' \
+            --exclude='/storage/app/private/' \
+            --exclude='/storage/app/public/' \
+            --exclude='/database/database.sqlite' \
+            ./ "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+
+      - name: Bootstrap server on first deploy
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           script: |
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
+            mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/public storage/app/private bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
             if [ ! -f .env ]; then
               cp .env.example .env
               php artisan key:generate --force
