@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RedirectIfNotInstalled;
+use App\Http\Middleware\RunPendingMigrations;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -99,6 +100,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(RedirectIfNotInstalled::class);
+        $middleware->append(RunPendingMigrations::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
