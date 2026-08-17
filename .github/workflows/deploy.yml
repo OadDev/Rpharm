@@ -44,7 +44,7 @@ jobs:
             --exclude='/database/database.sqlite' \
             ./ "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/"
 
-      - name: Bootstrap server on first deploy
+      - name: Ensure writable directories exist on server
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -56,8 +56,3 @@ jobs:
             cd "${{ secrets.DEPLOY_PATH }}"
             mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/public storage/app/private bootstrap/cache
             chmod -R 775 storage bootstrap/cache
-            if [ ! -f .env ]; then
-              cp .env.example .env
-              php artisan key:generate --force
-            fi
-            php artisan optimize:clear || true
