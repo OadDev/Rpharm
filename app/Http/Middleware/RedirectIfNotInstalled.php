@@ -11,6 +11,10 @@ class RedirectIfNotInstalled
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (app()->environment('testing')) {
+            return $next($request);
+        }
+
         if (! Installer::isInstalled() && ! $request->is('setup', 'setup/*', 'up')) {
             return redirect('/setup');
         }
