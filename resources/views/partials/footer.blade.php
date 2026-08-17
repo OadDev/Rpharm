@@ -1,4 +1,4 @@
-<footer class="site">
+<footer class="site" id="contact">
   <div class="wrap">
     <div class="footer-grid">
       <div>

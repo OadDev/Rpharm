@@ -136,7 +136,7 @@
     </div>
     <div class="leader-grid">
       @foreach($testimonials as $t)
-      <div class="leader-card"><img src="{{ $t->avatar_url }}" alt="{{ $t->name }}"><b>{{ $t->name }}</b><span>{{ $t->title }}</span></div>
+      <div class="leader-card"><img src="{{ $t->avatar_src }}" alt="{{ $t->name }}"><b>{{ $t->name }}</b><span>{{ $t->title }}</span></div>
       @endforeach
     </div>
   </div>

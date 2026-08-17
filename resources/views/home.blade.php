@@ -57,7 +57,9 @@
 .prod-swatch{
   height:90px;border-radius:10px;display:flex;align-items:center;justify-content:center;
   font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;text-align:center;padding:8px;
+  position:relative;overflow:hidden;
 }
+.prod-swatch img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .prod-card h4{font-size:15px;line-height:1.3;}
 .prod-card .pack{font-size:12.5px;color:var(--muted);}
 .prod-card a.details{font-size:13px;font-weight:700;color:var(--navy);margin-top:auto;display:flex;align-items:center;gap:4px;}
@@ -177,7 +179,13 @@
       @foreach($featuredProducts as $product)
       <div class="prod-card">
         <span class="prod-tag">{{ $product->category->name }}</span>
-        <div class="prod-swatch" style="background:linear-gradient(135deg,{{ $product->gradient_start }},{{ $product->gradient_end }});">{{ strtoupper($product->name) }}</div>
+        <div class="prod-swatch" @if(! $product->image_url) style="background:linear-gradient(135deg,{{ $product->gradient_start }},{{ $product->gradient_end }});" @endif>
+          @if($product->image_url)
+            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy">
+          @else
+            {{ strtoupper($product->name) }}
+          @endif
+        </div>
         <h4>{{ $product->name }}</h4>
         <span class="pack">{{ $product->pack_size }} · {{ $product->composition }}</span>
         <a class="details" href="{{ route('products.index', ['q' => $product->name]) }}">View details →</a>
@@ -197,7 +205,7 @@
 </section>
 
 <!-- 5. REAL DOCTOR STORIES -->
-<section id="contact">
+<section>
   <div class="wrap">
     <div class="section-head center">
       <div class="eyebrow center"><span class="leaf-bullet"></span> REAL DOCTOR STORIES</div>
@@ -210,7 +218,7 @@
         <span class="quote-mark">&ldquo;</span>
         <p class="txt">{{ $t->quote }}</p>
         <div class="story-person">
-          <img src="{{ $t->avatar_url }}" alt="{{ $t->name }}">
+          <img src="{{ $t->avatar_src }}" alt="{{ $t->name }}">
           <div><b>{{ $t->name }}</b><span>{{ $t->title }}</span></div>
         </div>
       </div>

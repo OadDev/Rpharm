@@ -28,8 +28,17 @@ class SettingResource extends Resource
                 Forms\Components\TextInput::make('key')
                     ->required()
                     ->disabled(fn (?Setting $record) => $record !== null),
+                Forms\Components\FileUpload::make('value')
+                    ->label('Logo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('branding')
+                    ->imagePreviewHeight('80')
+                    ->helperText('Shown in the site header and footer. A transparent PNG works best.')
+                    ->visible(fn (?Setting $record) => $record?->key === 'logo_url'),
                 Forms\Components\Textarea::make('value')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->visible(fn (?Setting $record) => $record?->key !== 'logo_url'),
             ]);
     }
 

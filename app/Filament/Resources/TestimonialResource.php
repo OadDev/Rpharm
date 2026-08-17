@@ -32,9 +32,13 @@ class TestimonialResource extends Resource
                 Forms\Components\Textarea::make('quote')
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('avatar_url')
-                    ->label('Avatar URL')
-                    ->url(),
+                Forms\Components\FileUpload::make('avatar_url')
+                    ->label('Photo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('testimonials')
+                    ->circleCropper()
+                    ->imagePreviewHeight('100'),
                 Forms\Components\Toggle::make('show_on_home')
                     ->required(),
                 Forms\Components\Toggle::make('show_on_about')
@@ -51,7 +55,7 @@ class TestimonialResource extends Resource
         return $table
             ->defaultSort('sort_order')
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar_url')
+                Tables\Columns\ImageColumn::make('avatar_src')
                     ->label('')
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')

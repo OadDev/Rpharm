@@ -79,7 +79,7 @@
       <div class="item">📞 <a href="tel:{{ str_replace(' ', '', $settings['phone_process'] ?? '') }}">{{ $settings['phone_process'] ?? '' }}</a></div>
       <div class="item">✉️ <a href="mailto:{{ $settings['email'] ?? '' }}">{{ $settings['email'] ?? '' }}</a></div>
       <div class="item">📍 Guwahati, Assam &amp; New Delhi</div>
-      <a href="{{ route('home') }}#contact" class="btn btn-primary">Contact Our Team →</a>
+      <a href="#contact" class="btn btn-primary">Contact Our Team →</a>
     </div>
   </div>
 </section>

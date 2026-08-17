@@ -45,6 +45,52 @@ if (file_exists($envPath)) {
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| Repair a placeholder APP_URL
+|--------------------------------------------------------------------------
+|
+| APP_URL feeds every absolute URL the app generates, including uploaded
+| file links (Storage::disk('public')->url()). Left at the .env.example
+| default of http://localhost, every uploaded image, logo, and product
+| photo would silently point at the wrong host. Detects the real host
+| from the incoming request and writes it in, but only ever replaces the
+| untouched placeholder — never overwrites a value someone set on purpose.
+*/
+if (PHP_SAPI !== 'cli' && isset($_SERVER['HTTP_HOST']) && file_exists($envPath)) {
+    $envContent = file_get_contents($envPath);
+
+    if (preg_match('/^APP_URL=(.*)$/m', $envContent, $matches)) {
+        $currentUrl = trim($matches[1], "\"' \t");
+
+        if (in_array($currentUrl, ['', 'http://localhost'], true)) {
+            $isHttps = (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || ($_SERVER['SERVER_PORT'] ?? null) == 443
+                || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null) === 'https';
+            $detectedUrl = ($isHttps ? 'https://' : 'http://').$_SERVER['HTTP_HOST'];
+
+            file_put_contents($envPath, preg_replace('/^APP_URL=.*$/m', 'APP_URL='.$detectedUrl, $envContent));
+        }
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Ensure the public storage symlink exists
+|--------------------------------------------------------------------------
+|
+| Uploaded files (product photos, testimonial avatars, the site logo)
+| are only served if public/storage links to storage/app/public. Normally
+| that's `php artisan storage:link`, but for the same reason as above this
+| can't depend on a working SSH shell — so it's created here instead.
+*/
+$storageLinkPath = dirname(__DIR__).'/public/storage';
+$storageTargetPath = dirname(__DIR__).'/storage/app/public';
+
+if (! file_exists($storageLinkPath) && is_dir($storageTargetPath)) {
+    @symlink($storageTargetPath, $storageLinkPath);
+}
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

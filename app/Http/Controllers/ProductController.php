@@ -20,6 +20,7 @@ class ProductController extends Controller
             'comp' => $p->composition,
             'grad' => [$p->gradient_start, $p->gradient_end],
             'detail' => $p->description,
+            'image' => $p->image_url,
         ])->values();
 
         $catLabels = $categories->pluck('name', 'slug');

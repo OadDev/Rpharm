@@ -25,7 +25,8 @@
   display:flex;flex-direction:column;transition:.2s;
 }
 .pcard:hover{box-shadow:var(--shadow);transform:translateY(-3px);}
-.pcard-media{height:150px;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;color:#fff;font-size:18px;text-align:center;padding:10px;position:relative;}
+.pcard-media{height:150px;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;color:#fff;font-size:18px;text-align:center;padding:10px;position:relative;overflow:hidden;}
+.pcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .pcard-tag{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);color:var(--navy);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:999px;}
 .pcard-body{padding:18px 18px 6px;}
 .pcard-body h4{font-size:16px;margin-bottom:4px;}
@@ -43,7 +44,7 @@
 .pcard-detail ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);}
 .no-results{text-align:center;padding:60px 0;color:var(--muted);display:none;}
 @media(max-width:900px){.product-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:600px){.product-grid{grid-template-columns:1fr;}.toolbar{margin-top:-36px;}.search-row{flex-direction:column;}.search-row button{padding:12px;}}
+@media(max-width:600px){.product-grid{grid-template-columns:1fr;}.toolbar{margin-top:18px;}.search-row{flex-direction:column;}.search-row button{padding:12px;}}
 </style>
 @endpush
 
@@ -86,7 +87,7 @@
   <div class="wrap" style="text-align:center;">
     <h2 style="font-size:24px;">Looking for full prescribing information?</h2>
     <p style="color:var(--muted);margin:12px 0 22px;">Healthcare professionals can request complete product monographs, packaging inserts and samples.</p>
-    <a href="{{ route('home') }}#contact" class="btn btn-primary">Contact Our Medical Team →</a>
+    <a href="#contact" class="btn btn-primary">Contact Our Medical Team →</a>
   </div>
 </section>
 
@@ -106,10 +107,12 @@ function render(list){
   list.forEach((p)=>{
     const el = document.createElement('div');
     el.className = "pcard";
+    const mediaStyle = p.image ? '' : `style="background:linear-gradient(135deg,${p.grad[0]},${p.grad[1]})"`;
+    const mediaContent = p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy">` : p.name;
     el.innerHTML = `
-      <div class="pcard-media" style="background:linear-gradient(135deg,${p.grad[0]},${p.grad[1]})">
+      <div class="pcard-media" ${mediaStyle}>
         <span class="pcard-tag">${catLabel[p.cat]}</span>
-        ${p.name}
+        ${mediaContent}
       </div>
       <div class="pcard-body">
         <h4>${p.name}</h4>

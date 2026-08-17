@@ -43,8 +43,17 @@ class ProductResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
+                Forms\Components\FileUpload::make('image_path')
+                    ->label('Product photo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('products')
+                    ->imagePreviewHeight('150')
+                    ->helperText('Optional. Falls back to the colour swatch below when no photo is uploaded.')
+                    ->columnSpanFull(),
                 Forms\Components\ColorPicker::make('gradient_start')
-                    ->required(),
+                    ->required()
+                    ->helperText('Used for the swatch background when no photo is uploaded.'),
                 Forms\Components\ColorPicker::make('gradient_end')
                     ->required(),
                 Forms\Components\Toggle::make('is_featured')
@@ -62,6 +71,9 @@ class ProductResource extends Resource
         return $table
             ->defaultSort('sort_order')
             ->columns([
+                Tables\Columns\ImageColumn::make('image_path')
+                    ->label('')
+                    ->disk('public'),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('category.name')
