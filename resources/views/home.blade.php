@@ -54,7 +54,7 @@
 .prod-nav-btn:disabled{opacity:.35;cursor:default;}
 .prod-slider-wrap{position:relative;}
 .prod-grid{
-  display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  display:flex;align-items:flex-start;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
   padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
 }
 .prod-grid::-webkit-scrollbar{display:none;}
@@ -206,7 +206,9 @@
             @endif
           </div>
           <h4>{{ $product->name }}</h4>
-          <span class="pack">{{ $product->pack_size }} · {{ $product->composition }}</span>
+          @if($product->pack_size || $product->composition)
+          <span class="pack">{{ collect([$product->pack_size, $product->composition])->filter()->implode(' · ') }}</span>
+          @endif
           <a class="details" href="{{ route('products.index', ['q' => $product->name]) }}">View details →</a>
         </div>
         @endforeach
