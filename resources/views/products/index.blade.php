@@ -147,7 +147,7 @@ function filterProducts(){
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   let list = products.filter(p => activeCat==="all" || p.cat===activeCat);
   if(q){
-    list = list.filter(p => p.name.toLowerCase().includes(q) || p.comp.toLowerCase().includes(q));
+    list = list.filter(p => (p.name||'').toLowerCase().includes(q) || (p.comp||'').toLowerCase().includes(q));
   }
   render(list);
 }
