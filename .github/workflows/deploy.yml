@@ -27,7 +27,18 @@ jobs:
         run: composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --no-progress
 
       - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+        timeout-minutes: 3
+        run: |
+          # Try installing straight from the runner image's existing package
+          # index first — it's usually fresh enough and this avoids a
+          # network call entirely. Only fall back to `apt-get update` (which
+          # has occasionally hung for minutes against a slow/unresponsive
+          # mirror) if that's not enough, and bound its retries/timeouts so
+          # a bad mirror fails fast instead of hanging the whole job.
+          sudo apt-get install -y sshpass || (
+            sudo apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 &&
+            sudo apt-get install -y sshpass
+          )
 
       - name: Deploy over SSH (rsync)
         run: |
