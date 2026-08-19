@@ -35,7 +35,9 @@
 
 .leader-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
 .leader-card{text-align:center;}
-.leader-card img{border-radius:16px;aspect-ratio:1/1;object-fit:cover;margin-bottom:14px;}
+.leader-photo{position:relative;border-radius:16px;aspect-ratio:1/1;margin-bottom:14px;overflow:hidden;background:var(--teal-light);}
+.leader-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.leader-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:32px;color:var(--teal);}
 .leader-card b{display:block;font-family:'Sora';color:var(--navy);}
 .leader-card span{font-size:13px;color:var(--muted);}
 
@@ -136,7 +138,15 @@
     </div>
     <div class="leader-grid">
       @foreach($testimonials as $t)
-      <div class="leader-card"><img src="{{ $t->avatar_src }}" alt="{{ $t->name }}"><b>{{ $t->name }}</b><span>{{ $t->title }}</span></div>
+      <div class="leader-card">
+        <div class="leader-photo">
+          <div class="leader-fallback">{{ collect(explode(' ', $t->name))->map(fn ($w) => mb_substr($w, 0, 1))->take(2)->implode('') }}</div>
+          @if($t->avatar_src)
+            <img src="{{ $t->avatar_src }}" alt="{{ $t->name }}" onerror="this.remove()">
+          @endif
+        </div>
+        <b>{{ $t->name }}</b><span>{{ $t->title }}</span>
+      </div>
       @endforeach
     </div>
   </div>

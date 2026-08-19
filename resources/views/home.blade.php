@@ -83,7 +83,9 @@
 .quote-mark{font-family:'Sora',sans-serif;font-size:44px;color:var(--teal);line-height:.5;display:block;margin-bottom:10px;}
 .story-card p.txt{font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .story-person{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
-.story-person img{width:84px;height:84px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border);}
+.story-photo{position:relative;width:84px;height:84px;border-radius:50%;flex-shrink:0;border:2px solid var(--border);overflow:hidden;background:var(--teal-light);}
+.story-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.story-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--teal);}
 .story-person b{display:block;font-size:15px;color:var(--navy);}
 .story-person span{font-size:12.5px;color:var(--muted);}
 
@@ -265,7 +267,12 @@
       @foreach($testimonials as $t)
       <div class="story-card">
         <div class="story-person">
-          <img src="{{ $t->avatar_src }}" alt="{{ $t->name }}">
+          <div class="story-photo">
+            <div class="story-fallback">{{ collect(explode(' ', $t->name))->map(fn ($w) => mb_substr($w, 0, 1))->take(2)->implode('') }}</div>
+            @if($t->avatar_src)
+              <img src="{{ $t->avatar_src }}" alt="{{ $t->name }}" onerror="this.remove()">
+            @endif
+          </div>
           <div><b>{{ $t->name }}</b><span>{{ $t->title }}</span></div>
         </div>
         <span class="quote-mark">&ldquo;</span>
