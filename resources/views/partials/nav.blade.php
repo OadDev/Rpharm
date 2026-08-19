@@ -1,6 +1,11 @@
 <header class="site">
   <div class="nav">
-    <a href="{{ route('home') }}" class="brand"><img src="{{ $settings['logo_url'] ?? '' }}" alt="RJS Pharma"></a>
+    <a href="{{ route('home') }}" class="brand">
+      @if($settings['logo_url'] ?? null)
+        <img src="{{ $settings['logo_url'] }}" alt="RJS Pharma" onerror="this.remove();document.getElementById('brandFallback').style.display='inline'">
+      @endif
+      <span id="brandFallback" style="{{ ($settings['logo_url'] ?? null) ? 'display:none' : '' }}">RJS Pharma</span>
+    </a>
     <nav class="navlinks">
       <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
       <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About Us</a>

@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <div class="foot-brand"><img src="{{ $settings['logo_url'] ?? '' }}" alt="RJS Pharma">RJS Pharma</div>
+        <div class="foot-brand">@if($settings['logo_url'] ?? null)<img src="{{ $settings['logo_url'] }}" alt="RJS Pharma" onerror="this.remove()">@endif RJS Pharma</div>
         <p>{{ $settings['footer_tagline'] ?? '' }}</p>
       </div>
       <div>
