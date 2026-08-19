@@ -23,6 +23,22 @@ class MediaUrl
             return $value;
         }
 
-        return Storage::disk('public')->url($value);
+        $diskUrl = Storage::disk('public')->url($value);
+
+        // Storage::url() builds its host from the filesystems 'public' disk
+        // config, which is set from APP_URL at boot — not from the current
+        // request. If APP_URL ever drifts from the real serving host (moved
+        // domain, http vs https, or simply stale), every uploaded image
+        // (logo, product photo, testimonial avatar) would silently 404
+        // while ordinary page links stay correct via URL::forceRootUrl().
+        // Rebuilding from the live request host keeps the two in sync.
+        if (app()->runningInConsole() || ! request()) {
+            return $diskUrl;
+        }
+
+        $storageIndex = strpos($diskUrl, '/storage/');
+        $relative = $storageIndex !== false ? substr($diskUrl, $storageIndex) : '/storage/'.ltrim($value, '/');
+
+        return rtrim(request()->getSchemeAndHttpHost(), '/').$relative;
     }
 }

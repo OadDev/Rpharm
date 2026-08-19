@@ -45,10 +45,23 @@
 /* Products */
 .products-strip{background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 .prod-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;flex-wrap:wrap;gap:16px;}
-.prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;}
+.prod-header-actions{display:flex;align-items:center;gap:14px;}
+.prod-nav-btn{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;transition:background .15s;
+}
+.prod-nav-btn:hover{background:var(--teal-light);}
+.prod-nav-btn:disabled{opacity:.35;cursor:default;}
+.prod-slider-wrap{position:relative;}
+.prod-grid{
+  display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.prod-grid::-webkit-scrollbar{display:none;}
 .prod-card{
   border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:var(--bg);
   display:flex;flex-direction:column;gap:10px;position:relative;
+  scroll-snap-align:start;flex:0 0 auto;width:220px;
 }
 .prod-tag{
   align-self:flex-start;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
@@ -66,12 +79,12 @@
 
 /* Doctor stories */
 .stories-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.story-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);}
+.story-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
 .quote-mark{font-family:'Sora',sans-serif;font-size:44px;color:var(--teal);line-height:.5;display:block;margin-bottom:10px;}
-.story-card p.txt{font-size:15px;color:var(--ink);margin-bottom:22px;}
-.story-person{display:flex;align-items:center;gap:12px;}
-.story-person img{width:48px;height:48px;border-radius:50%;object-fit:cover;}
-.story-person b{display:block;font-size:14.5px;color:var(--navy);}
+.story-card p.txt{font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.story-person{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.story-person img{width:84px;height:84px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border);}
+.story-person b{display:block;font-size:15px;color:var(--navy);}
 .story-person span{font-size:12.5px;color:var(--muted);}
 
 /* Stats band */
@@ -82,12 +95,13 @@
 
 @media(max-width:1000px){
   .hero-grid{grid-template-columns:1fr;}
-  .usp-grid,.areas-grid,.prod-grid{grid-template-columns:repeat(2,1fr);}
+  .usp-grid,.areas-grid{grid-template-columns:repeat(2,1fr);}
   .stories-grid{grid-template-columns:1fr;}
   .stats-grid{grid-template-columns:repeat(2,1fr);}
 }
 @media(max-width:600px){
-  .usp-grid,.areas-grid,.prod-grid,.stats-grid{grid-template-columns:1fr;}
+  .usp-grid,.areas-grid,.stats-grid{grid-template-columns:1fr;}
+  .prod-card{width:190px;}
 }
 </style>
 @endpush
@@ -173,27 +187,60 @@
         <div class="eyebrow"><span class="leaf-bullet"></span> OUR PRODUCTS</div>
         <h2>Our Top Products</h2>
       </div>
-      <a href="{{ route('products.index') }}" class="btn btn-outline">View All Products →</a>
-    </div>
-    <div class="prod-grid">
-      @foreach($featuredProducts as $product)
-      <div class="prod-card">
-        <span class="prod-tag">{{ $product->category->name }}</span>
-        <div class="prod-swatch" @if(! $product->image_url) style="background:linear-gradient(135deg,{{ $product->gradient_start }},{{ $product->gradient_end }});" @endif>
-          @if($product->image_url)
-            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy">
-          @else
-            {{ strtoupper($product->name) }}
-          @endif
-        </div>
-        <h4>{{ $product->name }}</h4>
-        <span class="pack">{{ $product->pack_size }} · {{ $product->composition }}</span>
-        <a class="details" href="{{ route('products.index', ['q' => $product->name]) }}">View details →</a>
+      <div class="prod-header-actions">
+        <button type="button" class="prod-nav-btn" id="prodPrev" aria-label="Previous products">←</button>
+        <button type="button" class="prod-nav-btn" id="prodNext" aria-label="Next products">→</button>
+        <a href="{{ route('products.index') }}" class="btn btn-outline">View All Products →</a>
       </div>
-      @endforeach
+    </div>
+    <div class="prod-slider-wrap">
+      <div class="prod-grid" id="prodSlider">
+        @foreach($featuredProducts as $product)
+        <div class="prod-card">
+          <span class="prod-tag">{{ $product->category->name }}</span>
+          <div class="prod-swatch" @if(! $product->image_url) style="background:linear-gradient(135deg,{{ $product->gradient_start }},{{ $product->gradient_end }});" @endif>
+            @if($product->image_url)
+              <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy">
+            @else
+              {{ strtoupper($product->name) }}
+            @endif
+          </div>
+          <h4>{{ $product->name }}</h4>
+          <span class="pack">{{ $product->pack_size }} · {{ $product->composition }}</span>
+          <a class="details" href="{{ route('products.index', ['q' => $product->name]) }}">View details →</a>
+        </div>
+        @endforeach
+      </div>
     </div>
   </div>
 </section>
+
+<script>
+(function () {
+  var slider = document.getElementById('prodSlider');
+  var prev = document.getElementById('prodPrev');
+  var next = document.getElementById('prodNext');
+  if (! slider || ! prev || ! next) return;
+
+  function scrollByCard(direction) {
+    var card = slider.querySelector('.prod-card');
+    var step = card ? card.offsetWidth + 20 : 240;
+    slider.scrollBy({ left: direction * step, behavior: 'smooth' });
+  }
+
+  function updateButtons() {
+    var maxScroll = slider.scrollWidth - slider.clientWidth - 2;
+    prev.disabled = slider.scrollLeft <= 0;
+    next.disabled = slider.scrollLeft >= maxScroll;
+  }
+
+  prev.addEventListener('click', function () { scrollByCard(-1); });
+  next.addEventListener('click', function () { scrollByCard(1); });
+  slider.addEventListener('scroll', updateButtons);
+  window.addEventListener('resize', updateButtons);
+  updateButtons();
+})();
+</script>
 
 <!-- STATS -->
 <section class="stats-band">
@@ -215,12 +262,12 @@
     <div class="stories-grid">
       @foreach($testimonials as $t)
       <div class="story-card">
-        <span class="quote-mark">&ldquo;</span>
-        <p class="txt">{{ $t->quote }}</p>
         <div class="story-person">
           <img src="{{ $t->avatar_src }}" alt="{{ $t->name }}">
           <div><b>{{ $t->name }}</b><span>{{ $t->title }}</span></div>
         </div>
+        <span class="quote-mark">&ldquo;</span>
+        <p class="txt">{{ $t->quote }}</p>
       </div>
       @endforeach
     </div>

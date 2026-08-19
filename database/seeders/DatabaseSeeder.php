@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Dermatology', 'slug' => 'dermatology', 'icon' => '🧴', 'accent_color' => '#E85D4C', 'description' => 'Skin, scalp & cosmetic dermatology — Ridsone, Melanowhite, Faceolift.'],
             ['name' => 'General Medicine', 'slug' => 'general-medicine', 'icon' => '💊', 'accent_color' => '#3FA66B', 'description' => 'Broad-spectrum everyday care — Dezacort, Ridmont FX, Absozyme.'],
             ['name' => 'Nutraceuticals', 'slug' => 'nutraceuticals', 'icon' => '🌿', 'accent_color' => '#0B2D4E', 'description' => 'Wellness & supplementation — Glution-Plus, Pravit-9G, Absozyme Syrup.'],
-            ['name' => 'Respiratory & Allergy', 'slug' => 'respiratory', 'icon' => '🫁', 'accent_color' => '#E8A83F', 'description' => 'Anti-allergic & respiratory support — Ridmont FX (Montelukast + Fexofenadine).'],
+            ['name' => 'Respiratory & Allergy', 'slug' => 'respiratory', 'icon' => '🩺', 'accent_color' => '#E8A83F', 'description' => 'Anti-allergic & respiratory support — Ridmont FX (Montelukast + Fexofenadine).'],
         ];
 
         $result = [];
