@@ -88,8 +88,24 @@ if (PHP_SAPI !== 'cli' && isset($_SERVER['HTTP_HOST']) && file_exists($envPath))
 $storageLinkPath = dirname(__DIR__).'/public/storage';
 $storageTargetPath = dirname(__DIR__).'/storage/app/public';
 
-if (! file_exists($storageLinkPath) && is_dir($storageTargetPath)) {
-    @symlink($storageTargetPath, $storageLinkPath);
+if (is_dir($storageTargetPath) && ! (is_link($storageLinkPath) && file_exists($storageLinkPath))) {
+    if (is_link($storageLinkPath)) {
+        // A dangling symlink (target was ever moved/recreated) still
+        // occupies this path, so a plain symlink() call below would
+        // silently fail with "File exists" — clear it first.
+        @unlink($storageLinkPath);
+    } elseif (is_dir($storageLinkPath) && count(scandir($storageLinkPath)) <= 2) {
+        // Some hosting setups end up with public/storage as a real, empty
+        // directory instead of a symlink (e.g. from a manual mkdir while
+        // troubleshooting) — uploaded files would silently never appear
+        // here. Only remove it if it's verifiably empty, never one holding
+        // actual files.
+        @rmdir($storageLinkPath);
+    }
+
+    if (! file_exists($storageLinkPath)) {
+        @symlink($storageTargetPath, $storageLinkPath);
+    }
 }
 
 return Application::configure(basePath: dirname(__DIR__))
