@@ -99,6 +99,10 @@ const products = @json($productsJson);
 const catLabel = @json($catLabels);
 let activeCat = {{ Illuminate\Support\Js::from(request('cat') ?: 'all') }};
 
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 function render(list){
   const grid = document.getElementById('productGrid');
   grid.innerHTML = "";
@@ -107,25 +111,28 @@ function render(list){
   list.forEach((p)=>{
     const el = document.createElement('div');
     el.className = "pcard";
+    const name = esc(p.name), comp = esc(p.comp), pack = esc(p.pack), detail = esc(p.detail);
     const mediaStyle = p.image ? '' : `style="background:linear-gradient(135deg,${p.grad[0]},${p.grad[1]})"`;
-    const mediaContent = p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy">` : p.name;
+    const mediaContent = p.image
+      ? `<img src="${esc(p.image)}" alt="${name}" loading="lazy" onerror="this.parentElement.style.background='linear-gradient(135deg,${p.grad[0]},${p.grad[1]})';this.remove()">`
+      : name;
     el.innerHTML = `
       <div class="pcard-media" ${mediaStyle}>
-        <span class="pcard-tag">${catLabel[p.cat]}</span>
+        <span class="pcard-tag">${esc(catLabel[p.cat])}</span>
         ${mediaContent}
       </div>
       <div class="pcard-body">
-        <h4>${p.name}</h4>
-        <div class="comp">${p.comp}</div>
-        <span class="pack">Pack size: ${p.pack}</span>
+        <h4>${name}</h4>
+        <div class="comp">${comp}</div>
+        <span class="pack">${pack ? `Pack size: ${pack}` : ''}</span>
       </div>
       <button class="pcard-toggle" onclick="toggleCard(this)">
         View composition & details
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="pcard-detail">
-        <p>${p.detail}</p>
-        <ul><li>Category: ${catLabel[p.cat]}</li><li>Pack size: ${p.pack}</li></ul>
+        <p>${detail}</p>
+        <ul><li>Category: ${esc(catLabel[p.cat])}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
       </div>`;
     grid.appendChild(el);
   });
