@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
     private function seedSettings(): void
     {
         $settings = [
-            'logo_url' => 'https://rjspharma.in/wp-content/uploads/2024/10/logo.png',
+            'logo_url' => '/images/logo.png',
             'phone_primary' => '+91 361 796 2687',
             'phone_secondary' => '+91 86384 75910',
             'phone_process' => '+91 80119 26222',

@@ -23,6 +23,14 @@ class MediaUrl
             return $value;
         }
 
+        // A root-relative path (e.g. /images/logo.png) points at a static
+        // asset shipped in public/ rather than something uploaded to the
+        // storage disk — return it as-is, browser resolves it against the
+        // current host automatically.
+        if (Str::startsWith($value, '/')) {
+            return $value;
+        }
+
         $diskUrl = Storage::disk('public')->url($value);
 
         // Storage::url() builds its host from the filesystems 'public' disk
