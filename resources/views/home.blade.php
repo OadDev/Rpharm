@@ -68,11 +68,12 @@
   padding:4px 10px;border-radius:999px;background:var(--teal-light);color:var(--teal);
 }
 .prod-swatch{
-  height:90px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  height:130px;border-radius:10px;display:flex;align-items:center;justify-content:center;
   font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;text-align:center;padding:8px;
-  position:relative;overflow:hidden;
+  position:relative;overflow:hidden;cursor:pointer;
 }
-.prod-swatch img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.prod-swatch.has-image{background:var(--bg);}
+.prod-swatch img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8px;}
 .prod-card h4{font-size:15px;line-height:1.3;}
 .prod-card .pack{font-size:12.5px;color:var(--muted);}
 .prod-card a.details{font-size:13px;font-weight:700;color:var(--navy);margin-top:auto;display:flex;align-items:center;gap:4px;}
@@ -200,7 +201,9 @@
         @foreach($featuredProducts as $product)
         <div class="prod-card">
           <span class="prod-tag">{{ $product->category->name }}</span>
-          <div class="prod-swatch" @if(! $product->image_url) style="background:linear-gradient(135deg,{{ $product->gradient_start }},{{ $product->gradient_end }});" @endif>
+          <div class="prod-swatch @if($product->image_url) has-image @endif"
+               @if(! $product->image_url) style="background:linear-gradient(135deg,{{ $product->gradient_start }},{{ $product->gradient_end }});" @endif
+               onclick="openImgModal({{ Illuminate\Support\Js::from($product->image_url) }}, {{ Illuminate\Support\Js::from($product->name) }}, {{ Illuminate\Support\Js::from($product->gradient_start) }}, {{ Illuminate\Support\Js::from($product->gradient_end) }})">
             @if($product->image_url)
               <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy">
             @else
@@ -226,23 +229,63 @@
   var next = document.getElementById('prodNext');
   if (! slider || ! prev || ! next) return;
 
-  function scrollByCard(direction) {
-    var card = slider.querySelector('.prod-card');
-    var step = card ? card.offsetWidth + 20 : 240;
-    slider.scrollBy({ left: direction * step, behavior: 'smooth' });
+  var AUTOPLAY_DELAY = 3500;
+  var RESUME_DELAY = 5000;
+  var autoplayTimer = null;
+  var resumeTimer = null;
+
+  function cards() {
+    return Array.prototype.slice.call(slider.querySelectorAll('.prod-card'));
   }
 
-  function updateButtons() {
-    var maxScroll = slider.scrollWidth - slider.clientWidth - 2;
-    prev.disabled = slider.scrollLeft <= 0;
-    next.disabled = slider.scrollLeft >= maxScroll;
+  // Raw scrollBy() pixel deltas fight the browser's own mandatory
+  // scroll-snap correction (the animation gets cut short partway to the
+  // next card) — targeting each card's actual offsetLeft cooperates with
+  // native snapping instead of fighting it. The last card's offsetLeft
+  // usually exceeds the container's true max scroll (there's no room left
+  // to align it to the viewport start), so the browser silently clamps
+  // any scrollTo() there — comparing against each card's offset clamped
+  // the same way keeps "which card are we on" accurate at the end,
+  // otherwise the last card never gets recognized and the loop back to
+  // the start never triggers.
+  function step(direction) {
+    var list = cards();
+    if (! list.length) return;
+    var max = slider.scrollWidth - slider.clientWidth;
+    var current = 0;
+    var closest = Infinity;
+    list.forEach(function (card, i) {
+      var dist = Math.abs(Math.min(card.offsetLeft, max) - slider.scrollLeft);
+      if (dist < closest) { closest = dist; current = i; }
+    });
+    var target = current + direction;
+    if (target < 0) target = list.length - 1;
+    if (target >= list.length) target = 0;
+    slider.scrollTo({ left: list[target].offsetLeft, behavior: 'smooth' });
   }
 
-  prev.addEventListener('click', function () { scrollByCard(-1); });
-  next.addEventListener('click', function () { scrollByCard(1); });
-  slider.addEventListener('scroll', updateButtons);
-  window.addEventListener('resize', updateButtons);
-  updateButtons();
+  function stopAutoplay() {
+    if (autoplayTimer) { clearInterval(autoplayTimer); autoplayTimer = null; }
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    autoplayTimer = setInterval(function () { step(1); }, AUTOPLAY_DELAY);
+  }
+
+  function pauseThenResume() {
+    stopAutoplay();
+    if (resumeTimer) clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(startAutoplay, RESUME_DELAY);
+  }
+
+  prev.addEventListener('click', function () { step(-1); pauseThenResume(); });
+  next.addEventListener('click', function () { step(1); pauseThenResume(); });
+  slider.addEventListener('mouseenter', stopAutoplay);
+  slider.addEventListener('mouseleave', startAutoplay);
+  slider.addEventListener('touchstart', pauseThenResume, { passive: true });
+
+  startAutoplay();
 })();
 </script>
 

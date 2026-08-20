@@ -25,8 +25,9 @@
   display:flex;flex-direction:column;transition:.2s;
 }
 .pcard:hover{box-shadow:var(--shadow);transform:translateY(-3px);}
-.pcard-media{height:150px;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;color:#fff;font-size:18px;text-align:center;padding:10px;position:relative;overflow:hidden;}
-.pcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.pcard-media{height:170px;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;color:#fff;font-size:18px;text-align:center;padding:10px;position:relative;overflow:hidden;cursor:pointer;}
+.pcard-media.has-image{background:var(--bg);}
+.pcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px;}
 .pcard-tag{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);color:var(--navy);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:999px;}
 .pcard-body{padding:18px 18px 6px;}
 .pcard-body h4{font-size:16px;margin-bottom:4px;}
@@ -112,12 +113,13 @@ function render(list){
     const el = document.createElement('div');
     el.className = "pcard";
     const name = esc(p.name), comp = esc(p.comp), pack = esc(p.pack), detail = esc(p.detail);
+    const mediaClass = p.image ? 'pcard-media has-image' : 'pcard-media';
     const mediaStyle = p.image ? '' : `style="background:linear-gradient(135deg,${p.grad[0]},${p.grad[1]})"`;
     const mediaContent = p.image
       ? `<img src="${esc(p.image)}" alt="${name}" loading="lazy" onerror="this.parentElement.style.background='linear-gradient(135deg,${p.grad[0]},${p.grad[1]})';this.remove()">`
       : name;
     el.innerHTML = `
-      <div class="pcard-media" ${mediaStyle}>
+      <div class="${mediaClass}" ${mediaStyle}>
         <span class="pcard-tag">${esc(catLabel[p.cat])}</span>
         ${mediaContent}
       </div>
@@ -134,6 +136,7 @@ function render(list){
         <p>${detail}</p>
         <ul><li>Category: ${esc(catLabel[p.cat])}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
       </div>`;
+    el.querySelector('.pcard-media').addEventListener('click', () => openImgModal(p.image, p.name, p.grad[0], p.grad[1]));
     grid.appendChild(el);
   });
 }
