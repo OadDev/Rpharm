@@ -28,7 +28,7 @@
 .pcard-media{height:170px;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;color:#fff;font-size:18px;text-align:center;padding:10px;position:relative;overflow:hidden;cursor:pointer;}
 .pcard-media.has-image{background:var(--bg);}
 .pcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px;}
-.pcard-tag{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);color:var(--navy);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:999px;}
+.pcard-tag{position:absolute;top:10px;left:10px;z-index:1;background:rgba(255,255,255,.92);color:var(--navy);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:999px;}
 .pcard-body{padding:18px 18px 6px;}
 .pcard-body h4{font-size:16px;margin-bottom:4px;}
 .pcard-body .comp{font-size:13px;color:var(--muted);}
