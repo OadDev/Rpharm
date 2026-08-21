@@ -27,6 +27,7 @@
     </div>
     <div class="foot-bottom">
       <span>© {{ now()->year }} RJS Pharma. All Rights Reserved.</span>
+      <span>Developed by <a href="https://orbitxmedia.com" target="_blank" rel="noopener noreferrer">Orbit X Media Pvt. Ltd.</a></span>
     </div>
   </div>
 </footer>

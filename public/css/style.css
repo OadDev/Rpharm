@@ -71,6 +71,8 @@ footer.site{background:var(--navy);color:#cfe0e8;padding:64px 0 22px;margin-top:
 .foot-brand{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:800;font-size:19px;color:#fff;margin-bottom:14px;}
 .foot-brand img{height:56px;width:auto;background:#fff;border-radius:8px;padding:4px 8px;}
 .foot-bottom{display:flex;justify-content:space-between;padding-top:22px;font-size:13px;color:#8fa5b0;flex-wrap:wrap;gap:10px;}
+.foot-bottom a{color:#8fa5b0;text-decoration:underline;}
+.foot-bottom a:hover{color:#fff;}
 
 /* Sections */
 section{padding:78px 0;}
