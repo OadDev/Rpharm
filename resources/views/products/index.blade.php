@@ -4,7 +4,7 @@
 
 @push('styles')
 <style>
-.toolbar{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-top:-58px;position:relative;z-index:5;}
+.toolbar{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-top:-30px;position:relative;z-index:5;}
 .search-row{display:flex;gap:12px;}
 .search-row input{
   flex:1;padding:13px 18px;border-radius:999px;border:1.5px solid var(--border);font-family:'Inter';font-size:15px;outline:none;
