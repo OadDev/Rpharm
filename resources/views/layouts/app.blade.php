@@ -152,6 +152,12 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeI
   panel.querySelectorAll('a').forEach(function(a){
     a.addEventListener('click', function(){ panel.classList.remove('open'); btn.setAttribute('aria-expanded','false'); });
   });
+  document.addEventListener('click', function(e){
+    if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
 })();
 </script>
 @stack('scripts')

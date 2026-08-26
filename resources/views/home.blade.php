@@ -134,55 +134,7 @@
   </div>
 </section>
 
-<!-- 2. USPs -->
-<section class="usp-strip">
-  <div class="wrap usp-grid">
-    @foreach($uspItems as $usp)
-    <div class="usp">
-      <div class="usp-icon">
-        @switch($usp->icon_key)
-          @case('shield')
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z"/><path d="M9 12l2 2 4-4"/></svg>
-            @break
-          @case('users')
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-            @break
-          @case('bulb')
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a6 6 0 00-4 10.4c.6.6 1 1.4 1 2.3v.3h6v-.3c0-.9.4-1.7 1-2.3A6 6 0 0012 2z"/></svg>
-            @break
-          @case('globe')
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z"/></svg>
-            @break
-        @endswitch
-      </div>
-      <div><h4>{{ $usp->title }}</h4><p>{{ $usp->description }}</p></div>
-    </div>
-    @endforeach
-  </div>
-</section>
-
-<!-- 3. THERAPEUTIC AREAS -->
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow"><span class="leaf-bullet"></span> THERAPEUTIC AREAS</div>
-      <h2>Focused on What Matters Most</h2>
-      <p>Our product portfolio spans the therapeutic areas India's patients and prescribers need most, from everyday skin conditions to systemic infections.</p>
-    </div>
-    <div class="areas-grid">
-      @foreach($categories as $cat)
-      <div class="area-card" style="--accent:{{ $cat->accent_color }}">
-        <div class="area-icon">{{ $cat->icon }}</div>
-        <h4>{{ $cat->name }}</h4>
-        <p>{{ $cat->description }}</p>
-        <a href="{{ route('products.index', ['cat' => $cat->slug]) }}">View products →</a>
-      </div>
-      @endforeach
-    </div>
-  </div>
-</section>
-
-<!-- 4. OUR PRODUCTS -->
+<!-- 2. OUR PRODUCTS -->
 <section class="products-strip">
   <div class="wrap">
     <div class="prod-header">
@@ -233,35 +185,30 @@
   var RESUME_DELAY = 5000;
   var autoplayTimer = null;
   var resumeTimer = null;
+  var resyncTimer = null;
+  var currentIndex = 0;
 
   function cards() {
     return Array.prototype.slice.call(slider.querySelectorAll('.prod-card'));
   }
 
-  // Raw scrollBy() pixel deltas fight the browser's own mandatory
-  // scroll-snap correction (the animation gets cut short partway to the
-  // next card) — targeting each card's actual offsetLeft cooperates with
-  // native snapping instead of fighting it. The last card's offsetLeft
-  // usually exceeds the container's true max scroll (there's no room left
-  // to align it to the viewport start), so the browser silently clamps
-  // any scrollTo() there — comparing against each card's offset clamped
-  // the same way keeps "which card are we on" accurate at the end,
-  // otherwise the last card never gets recognized and the loop back to
-  // the start never triggers.
-  function step(direction) {
+  // Deriving "which card are we on" from scrollLeft doesn't hold up: at
+  // narrower widths several trailing cards' offsetLeft all exceed the
+  // container's true max scroll and get silently clamped to the same
+  // value, so multiple cards look equally "closest" and the wrap-around
+  // logic could get stuck oscillating on one position forever. Tracking
+  // the index directly sidesteps that ambiguity — every step moves
+  // exactly one card forward/back and wraps cleanly, regardless of how
+  // many cards are clamped to the same scroll position.
+  function goTo(index) {
     var list = cards();
     if (! list.length) return;
-    var max = slider.scrollWidth - slider.clientWidth;
-    var current = 0;
-    var closest = Infinity;
-    list.forEach(function (card, i) {
-      var dist = Math.abs(Math.min(card.offsetLeft, max) - slider.scrollLeft);
-      if (dist < closest) { closest = dist; current = i; }
-    });
-    var target = current + direction;
-    if (target < 0) target = list.length - 1;
-    if (target >= list.length) target = 0;
-    slider.scrollTo({ left: list[target].offsetLeft, behavior: 'smooth' });
+    currentIndex = ((index % list.length) + list.length) % list.length;
+    slider.scrollTo({ left: list[currentIndex].offsetLeft, behavior: 'smooth' });
+  }
+
+  function step(direction) {
+    goTo(currentIndex + direction);
   }
 
   function stopAutoplay() {
@@ -279,15 +226,85 @@
     resumeTimer = setTimeout(startAutoplay, RESUME_DELAY);
   }
 
+  // A manual swipe/drag moves the real scroll position without going
+  // through goTo(), so currentIndex would otherwise drift out of sync —
+  // resync it (once scrolling settles) to whichever card is now closest,
+  // using each card's own offsetLeft rather than a clamped one: a
+  // position the user actually dragged to isn't subject to the
+  // trailing-card clamping ambiguity above.
+  function resyncFromScrollPosition() {
+    var list = cards();
+    if (! list.length) return;
+    var closest = 0;
+    var closestDist = Infinity;
+    list.forEach(function (card, i) {
+      var dist = Math.abs(card.offsetLeft - slider.scrollLeft);
+      if (dist < closestDist) { closestDist = dist; closest = i; }
+    });
+    currentIndex = closest;
+  }
+
   prev.addEventListener('click', function () { step(-1); pauseThenResume(); });
   next.addEventListener('click', function () { step(1); pauseThenResume(); });
   slider.addEventListener('mouseenter', stopAutoplay);
   slider.addEventListener('mouseleave', startAutoplay);
   slider.addEventListener('touchstart', pauseThenResume, { passive: true });
+  slider.addEventListener('scroll', function () {
+    if (resyncTimer) clearTimeout(resyncTimer);
+    resyncTimer = setTimeout(resyncFromScrollPosition, 150);
+  }, { passive: true });
 
   startAutoplay();
 })();
 </script>
+
+<!-- 3. USPs -->
+<section class="usp-strip">
+  <div class="wrap usp-grid">
+    @foreach($uspItems as $usp)
+    <div class="usp">
+      <div class="usp-icon">
+        @switch($usp->icon_key)
+          @case('shield')
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            @break
+          @case('users')
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+            @break
+          @case('bulb')
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a6 6 0 00-4 10.4c.6.6 1 1.4 1 2.3v.3h6v-.3c0-.9.4-1.7 1-2.3A6 6 0 0012 2z"/></svg>
+            @break
+          @case('globe')
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F7A72" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z"/></svg>
+            @break
+        @endswitch
+      </div>
+      <div><h4>{{ $usp->title }}</h4><p>{{ $usp->description }}</p></div>
+    </div>
+    @endforeach
+  </div>
+</section>
+
+<!-- 4. THERAPEUTIC AREAS -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="leaf-bullet"></span> THERAPEUTIC AREAS</div>
+      <h2>Focused on What Matters Most</h2>
+      <p>Our product portfolio spans the therapeutic areas India's patients and prescribers need most, from everyday skin conditions to systemic infections.</p>
+    </div>
+    <div class="areas-grid">
+      @foreach($categories as $cat)
+      <div class="area-card" style="--accent:{{ $cat->accent_color }}">
+        <div class="area-icon">{{ $cat->icon }}</div>
+        <h4>{{ $cat->name }}</h4>
+        <p>{{ $cat->description }}</p>
+        <a href="{{ route('products.index', ['cat' => $cat->slug]) }}">View products →</a>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</section>
 
 <!-- STATS -->
 <section class="stats-band">
