@@ -16,4 +16,24 @@ class EditSetting extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        if (($data['key'] ?? null) === 'logo_url') {
+            $data['logo_file'] = $data['value'] ?? null;
+        }
+
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if ($this->record->key === 'logo_url') {
+            $data['value'] = $data['logo_file'] ?? null;
+        }
+
+        unset($data['logo_file']);
+
+        return $data;
+    }
 }
