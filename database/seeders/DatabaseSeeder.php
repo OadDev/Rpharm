@@ -139,7 +139,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($products as $i => $p) {
-            Product::updateOrCreate(
+            $product = Product::updateOrCreate(
                 ['slug' => Str::slug($p['name'])],
                 [
                     'category_id' => $categories[$p['cat']]->id,
@@ -153,6 +153,8 @@ class DatabaseSeeder extends Seeder
                     'sort_order' => $i,
                 ]
             );
+
+            $product->categories()->sync([$categories[$p['cat']]->id]);
         }
     }
 

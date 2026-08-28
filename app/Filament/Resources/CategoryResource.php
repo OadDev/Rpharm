@@ -49,7 +49,17 @@ class CategoryResource extends Resource
         return $table
             ->defaultSort('sort_order')
             ->columns([
-                Tables\Columns\TextColumn::make('icon'),
+                Tables\Columns\IconColumn::make('icon')
+                    ->label('Icon')
+                    ->icon(fn (Category $record) => match ($record->slug) {
+                        'anti-infectives' => 'heroicon-o-bug-ant',
+                        'dermatology' => 'heroicon-o-sparkles',
+                        'general-medicine' => 'heroicon-o-beaker',
+                        'nutraceuticals' => 'heroicon-o-sun',
+                        'respiratory' => 'heroicon-o-cloud',
+                        default => 'heroicon-o-tag',
+                    })
+                    ->color('primary'),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')

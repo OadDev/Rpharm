@@ -30,8 +30,6 @@
 .pcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px;}
 .pcard-body{padding:18px 18px 6px;}
 .pcard-body h4{font-size:16px;margin-bottom:4px;}
-.pcard-body .comp{font-size:13px;color:var(--muted);}
-.pcard-body .pack{font-size:12.5px;color:var(--teal);font-weight:700;margin-top:6px;display:block;}
 .pcard-toggle{
   width:100%;background:none;border:none;border-top:1px solid var(--border);margin-top:14px;padding:13px 18px;
   display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:13.5px;color:var(--navy);
@@ -113,7 +111,7 @@ function render(list){
   list.forEach((p)=>{
     const el = document.createElement('div');
     el.className = "pcard";
-    const name = esc(p.name), comp = esc(p.comp), pack = esc(p.pack), detail = esc(p.detail);
+    const name = esc(p.name), pack = esc(p.pack), detail = esc(p.detail);
     const mediaClass = p.image ? 'pcard-media has-image' : 'pcard-media';
     const mediaStyle = p.image ? '' : `style="background:linear-gradient(135deg,${p.grad[0]},${p.grad[1]})"`;
     const mediaContent = p.image
@@ -125,8 +123,6 @@ function render(list){
       </div>
       <div class="pcard-body">
         <h4>${name}</h4>
-        <div class="comp">${comp}</div>
-        <span class="pack">${pack ? `Pack size: ${pack}` : ''}</span>
       </div>
       <button class="pcard-toggle" onclick="toggleCard(this)">
         View composition & details
@@ -134,7 +130,7 @@ function render(list){
       </button>
       <div class="pcard-detail">
         <p>${detail}</p>
-        <ul><li>Category: ${esc(catLabel[p.cat])}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
+        <ul><li>Category: ${p.cats.map(c => esc(catLabel[c])).join(', ')}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
       </div>`;
     el.querySelector('.pcard-media').addEventListener('click', () => openImgModal(p.image, p.name, p.grad[0], p.grad[1]));
     grid.appendChild(el);
@@ -148,7 +144,7 @@ function toggleCard(btn){
 
 function filterProducts(){
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  let list = products.filter(p => activeCats.size === 0 || activeCats.has(p.cat));
+  let list = products.filter(p => activeCats.size === 0 || p.cats.some(c => activeCats.has(c)));
   if(q){
     list = list.filter(p => (p.name||'').toLowerCase().includes(q) || (p.comp||'').toLowerCase().includes(q));
   }

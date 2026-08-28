@@ -16,4 +16,11 @@ class EditProduct extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['category_id'] = $data['categories'][0] ?? $this->record->category_id;
+
+        return $data;
+    }
 }

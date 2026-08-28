@@ -75,7 +75,6 @@
 .prod-swatch.has-image{background:var(--bg);}
 .prod-swatch img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8px;}
 .prod-card h4{font-size:15px;line-height:1.3;}
-.prod-card .pack{font-size:12.5px;color:var(--muted);}
 .prod-card a.details{font-size:13px;font-weight:700;color:var(--navy);margin-top:auto;display:flex;align-items:center;gap:4px;}
 
 /* Doctor stories */
@@ -163,9 +162,6 @@
             @endif
           </div>
           <h4>{{ $product->name }}</h4>
-          @if($product->pack_size || $product->composition)
-          <span class="pack">{{ collect([$product->pack_size, $product->composition])->filter()->implode(' · ') }}</span>
-          @endif
           <a class="details" href="{{ route('products.index', ['q' => $product->name]) }}">View details →</a>
         </div>
         @endforeach
@@ -296,7 +292,7 @@
     <div class="areas-grid">
       @foreach($categories as $cat)
       <div class="area-card" style="--accent:{{ $cat->accent_color }}">
-        <div class="area-icon">{{ $cat->icon }}</div>
+        <div class="area-icon" style="color:{{ $cat->accent_color }}">@include('partials.category-icon', ['slug' => $cat->slug, 'icon' => $cat->icon])</div>
         <h4>{{ $cat->name }}</h4>
         <p>{{ $cat->description }}</p>
         <a href="{{ route('products.index', ['cat' => $cat->slug]) }}">View products →</a>

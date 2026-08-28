@@ -25,11 +25,13 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'name')
+                Forms\Components\Select::make('categories')
+                    ->relationship('categories', 'name')
+                    ->multiple()
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->helperText('Select every therapeutic area this product belongs to.'),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->live(onBlur: true)
@@ -76,9 +78,9 @@ class ProductResource extends Resource
                     ->disk('public'),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('category.name')
-                    ->badge()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('categories.name')
+                    ->label('Categories')
+                    ->badge(),
                 Tables\Columns\TextColumn::make('pack_size')
                     ->label('Pack size'),
                 Tables\Columns\TextColumn::make('composition')
@@ -99,9 +101,11 @@ class ProductResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category_id')
+                Tables\Filters\SelectFilter::make('categories')
                     ->label('Category')
-                    ->relationship('category', 'name'),
+                    ->relationship('categories', 'name')
+                    ->multiple()
+                    ->preload(),
                 Tables\Filters\TernaryFilter::make('is_featured'),
             ])
             ->actions([
