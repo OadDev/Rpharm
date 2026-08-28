@@ -26,8 +26,15 @@ class MediaUrl
         // A root-relative path (e.g. /images/logo.png) points at a static
         // asset shipped in public/ rather than something uploaded to the
         // storage disk — return it as-is, browser resolves it against the
-        // current host automatically.
+        // current host automatically. Append the file's mtime so a
+        // redeployed asset at the same path busts any browser/CDN cache.
         if (Str::startsWith($value, '/')) {
+            $path = public_path(ltrim($value, '/'));
+
+            if (is_file($path)) {
+                return $value.'?v='.filemtime($path);
+            }
+
             return $value;
         }
 
