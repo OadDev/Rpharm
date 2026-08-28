@@ -28,7 +28,6 @@
 .pcard-media{height:170px;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;color:#fff;font-size:18px;text-align:center;padding:10px;position:relative;overflow:hidden;cursor:pointer;}
 .pcard-media.has-image{background:var(--bg);}
 .pcard-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px;}
-.pcard-tag{position:absolute;top:10px;left:10px;z-index:1;background:rgba(255,255,255,.92);color:var(--navy);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:999px;}
 .pcard-body{padding:18px 18px 6px;}
 .pcard-body h4{font-size:16px;margin-bottom:4px;}
 .pcard-body .comp{font-size:13px;color:var(--muted);}
@@ -71,6 +70,7 @@
       <div class="cat-chip{{ request('cat') === $cat->slug ? ' active' : '' }}" data-cat="{{ $cat->slug }}">{{ $cat->name }}</div>
       @endforeach
     </div>
+    <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);">Tip: select more than one category to view products from all of them together.</p>
   </div>
 
   <section style="padding-top:0;">
@@ -98,7 +98,8 @@
 <script>
 const products = @json($productsJson);
 const catLabel = @json($catLabels);
-let activeCat = {{ Illuminate\Support\Js::from(request('cat') ?: 'all') }};
+const initialCat = {{ Illuminate\Support\Js::from(request('cat')) }};
+let activeCats = new Set(initialCat ? [initialCat] : []);
 
 function esc(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -120,7 +121,6 @@ function render(list){
       : name;
     el.innerHTML = `
       <div class="${mediaClass}" ${mediaStyle}>
-        <span class="pcard-tag">${esc(catLabel[p.cat])}</span>
         ${mediaContent}
       </div>
       <div class="pcard-body">
@@ -148,7 +148,7 @@ function toggleCard(btn){
 
 function filterProducts(){
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  let list = products.filter(p => activeCat==="all" || p.cat===activeCat);
+  let list = products.filter(p => activeCats.size === 0 || activeCats.has(p.cat));
   if(q){
     list = list.filter(p => (p.name||'').toLowerCase().includes(q) || (p.comp||'').toLowerCase().includes(q));
   }
@@ -157,9 +157,19 @@ function filterProducts(){
 
 document.querySelectorAll('.cat-chip').forEach(chip=>{
   chip.addEventListener('click', ()=>{
-    document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    activeCat = chip.dataset.cat;
+    const cat = chip.dataset.cat;
+    if (cat === 'all') {
+      activeCats.clear();
+    } else {
+      if (activeCats.has(cat)) {
+        activeCats.delete(cat);
+      } else {
+        activeCats.add(cat);
+      }
+    }
+    document.querySelectorAll('.cat-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.cat === 'all' ? activeCats.size === 0 : activeCats.has(c.dataset.cat));
+    });
     filterProducts();
   });
 });
