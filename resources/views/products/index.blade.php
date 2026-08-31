@@ -36,8 +36,9 @@
 }
 .pcard-toggle svg{transition:.2s;}
 .pcard-toggle.open svg{transform:rotate(180deg);}
-.pcard-detail{max-height:0;overflow:hidden;transition:max-height .25s ease;padding:0 18px;}
-.pcard-detail.open{max-height:260px;padding-bottom:18px;}
+.pcard-detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease;padding:0 18px;}
+.pcard-detail.open{grid-template-rows:1fr;padding-bottom:18px;}
+.pcard-detail-inner{overflow:hidden;min-height:0;}
 .pcard-detail p{font-size:13.5px;color:var(--muted);margin:0 0 8px;}
 .pcard-detail ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);}
 .no-results{text-align:center;padding:60px 0;color:var(--muted);display:none;}
@@ -129,8 +130,10 @@ function render(list){
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="pcard-detail">
-        <p>${detail}</p>
-        <ul><li>Category: ${p.cats.map(c => esc(catLabel[c])).join(', ')}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
+        <div class="pcard-detail-inner">
+          <p>${detail}</p>
+          <ul><li>Category: ${p.cats.map(c => esc(catLabel[c])).join(', ')}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
+        </div>
       </div>`;
     el.querySelector('.pcard-media').addEventListener('click', () => openImgModal(p.image, p.name, p.grad[0], p.grad[1]));
     grid.appendChild(el);
