@@ -112,7 +112,7 @@ function render(list){
   list.forEach((p)=>{
     const el = document.createElement('div');
     el.className = "pcard";
-    const name = esc(p.name), pack = esc(p.pack), detail = esc(p.detail);
+    const name = esc(p.name), pack = esc(p.pack), comp = esc(p.comp), detail = esc(p.detail);
     const mediaClass = p.image ? 'pcard-media has-image' : 'pcard-media';
     const mediaStyle = p.image ? '' : `style="background:linear-gradient(135deg,${p.grad[0]},${p.grad[1]})"`;
     const mediaContent = p.image
@@ -132,7 +132,7 @@ function render(list){
       <div class="pcard-detail">
         <div class="pcard-detail-inner">
           <p>${detail}</p>
-          <ul><li>Category: ${p.cats.map(c => esc(catLabel[c])).join(', ')}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
+          <ul>${comp ? `<li>Composition: ${comp}</li>` : ''}<li>Category: ${p.cats.map(c => esc(catLabel[c])).join(', ')}</li>${pack ? `<li>Pack size: ${pack}</li>` : ''}</ul>
         </div>
       </div>`;
     el.querySelector('.pcard-media').addEventListener('click', () => openImgModal(p.image, p.name, p.grad[0], p.grad[1]));
