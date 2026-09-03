@@ -6,10 +6,17 @@
 <style>
 .toolbar{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-top:-30px;position:relative;z-index:5;}
 .search-row{display:flex;gap:12px;}
-.search-row input{
-  flex:1;padding:13px 18px;border-radius:999px;border:1.5px solid var(--border);font-family:'Inter';font-size:15px;outline:none;
+.search-wrap{position:relative;flex:1;display:flex;}
+.search-wrap input{
+  flex:1;padding:13px 40px 13px 18px;border-radius:999px;border:1.5px solid var(--border);font-family:'Inter';font-size:15px;outline:none;width:100%;
 }
-.search-row input:focus{border-color:var(--teal);}
+.search-wrap input:focus{border-color:var(--teal);}
+.search-row button#searchClear{
+  display:none;position:absolute;top:50%;right:8px;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;
+  border:none;background:var(--border);color:var(--muted);align-items:center;justify-content:center;cursor:pointer;font-size:0;padding:0;
+}
+.search-wrap input:not(:placeholder-shown) ~ #searchClear{display:flex;}
+.search-row button#searchClear:hover{background:var(--navy);color:#fff;}
 .search-row button{border:none;background:var(--teal);color:#fff;padding:0 22px;border-radius:999px;font-weight:600;cursor:pointer;}
 .cat-filters{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
 .cat-chip{
@@ -60,7 +67,12 @@
 <div class="wrap">
   <div class="toolbar">
     <div class="search-row">
-      <input id="searchInput" type="text" placeholder="Search by product name, salt or composition (e.g. Ketoconazole, Melfade, Cream)…" value="{{ request('q') }}">
+      <div class="search-wrap">
+        <input id="searchInput" type="text" placeholder="Search by product name, salt or composition (e.g. Ketoconazole, Melfade, Cream)…" value="{{ request('q') }}">
+        <button type="button" class="search-clear" id="searchClear" aria-label="Clear search">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
       <button type="button" onclick="filterProducts()">Search</button>
     </div>
     <div class="cat-filters" id="catFilters">
@@ -169,10 +181,17 @@ document.querySelectorAll('.cat-chip').forEach(chip=>{
     document.querySelectorAll('.cat-chip').forEach(c => {
       c.classList.toggle('active', c.dataset.cat === 'all' ? activeCats.size === 0 : activeCats.has(c.dataset.cat));
     });
+    document.getElementById('searchInput').value = '';
     filterProducts();
   });
 });
 document.getElementById('searchInput').addEventListener('input', filterProducts);
+document.getElementById('searchClear').addEventListener('click', () => {
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  input.focus();
+  filterProducts();
+});
 
 filterProducts();
 </script>
