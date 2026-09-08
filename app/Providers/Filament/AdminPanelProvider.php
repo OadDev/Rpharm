@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->brandName('RJS Pharma Admin')
             ->login()
+            ->profile()
             ->colors([
                 'primary' => Color::hex('#0F7A72'),
             ])
