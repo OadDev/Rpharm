@@ -48,6 +48,7 @@ class SettingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('key', 'not like', 'mail_%'))
             ->columns([
                 Tables\Columns\TextColumn::make('key')
                     ->searchable(),

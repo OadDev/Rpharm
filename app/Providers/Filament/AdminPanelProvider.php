@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Auth\EditProfile;
+use App\Filament\Auth\PasswordReset\RequestPasswordReset;
+use App\Filament\Auth\PasswordReset\VerifyOtp;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,6 +33,8 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('images/favicon-32.png'))
             ->login()
             ->profile(EditProfile::class)
+            ->passwordReset(RequestPasswordReset::class)
+            ->routes(fn (Panel $panel) => VerifyOtp::routes($panel))
             ->colors([
                 'primary' => Color::hex('#0F7A72'),
             ])
