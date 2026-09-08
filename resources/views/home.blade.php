@@ -124,7 +124,7 @@
     </div>
     <div class="hero-media">
       <div class="hero-dots"></div>
-      <img src="https://rjspharma.in/wp-content/uploads/2024/03/about.png" alt="RJS Pharma research and development">
+      <img src="{{ asset('images/hero-research.png') }}" alt="RJS Pharma research and development">
       <div class="hero-badge">
         <div class="leaf-bullet" style="width:14px;height:14px;"></div>
         <div><b>{{ $settings['hero_badge_value'] ?? '22+' }}</b><span>{{ $settings['hero_badge_label'] ?? '' }}</span></div>
