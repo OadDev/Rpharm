@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('RJS Pharma Admin')
+            ->favicon(asset('images/favicon-32.png'))
             ->login()
             ->profile()
             ->colors([
